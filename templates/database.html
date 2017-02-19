@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+    <html>
+        <head>
+            <title>Build-a-blog</title>
+                <style type= "text/css">
+                </style>
+        </head>
+        <body>
+            <h1>Build-a-Blog</h1>
+
+        <hr>
+        {% for post in entry_list %}
+            <div class="entry_list"
+                <div class="entry_list-title">{{post.title}}</div>
+                <pre class="user_post-post">{{post.entry}}</pre>
+            </div>
+        {% endfor %}
+
+
+
+        </body>
+    </html>

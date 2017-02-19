@@ -18,13 +18,19 @@ import webapp2
 import cgi
 import os
 import jinja2
+from google.appengine.ext import db
 
 # set up jinja
 template_dir = os.path.join(os.path.dirname(__file__), "templates")
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir))
 
+class Post(db.Model):
+    title = db.StringProperty(required = True)
+    entry = db.TextProperty(required = True)
+    created = db.DateTimeProperty(auto_now_add = True)
+
 class Handler(webapp2.RequestHandler):
-    def write(self, *a):
+    def write(self, *a, **b):
         self.response.write(*a)
     def render_str(self,template, **b):
         t = jinja_env.get_template(template)
@@ -35,19 +41,35 @@ class Handler(webapp2.RequestHandler):
 t = jinja_env.get_template("title.html")
 main_page = t.render()
 class MainPage(Handler):
-    def get(self):
-        self.render("title.html")
+    def render_front(self, title="", entry="", error=""):
+        self.render("title.html", title = title, entry=entry, error=error)
 
+    def get(self):
+        self.render_front()
     def post(self):
         title = self.request.get("title")
-        user_post = self.request.get("user post")
+        entry = self.request.get("entry")
+        created = self.request.get("created")
 
-        if title and user_post:
-            self.write("Thanks for posting!")
+        if title and entry:
+            a = Post(title = title, entry = entry)
+            a.put()
+            self.redirect("/blog")
         else:
             error = "Sorry, we need both a title and a blog post"
-            self.render("title.html", error = error)
+            self.render_front(title, entry, error = error)
+class Blog(MainPage):
+    def get(self):
+        entry_list = db.GqlQuery("SELECT * FROM Post "
+                            "ORDER BY created DESC limit 5")
+
+        #self.render("title.html", entry_list)
+        self.render("database.html", entry_list = entry_list)
+
+    # def post(self):
+    #     test="test"
 
 app = webapp2.WSGIApplication([
-    ('/', MainPage)
+    ('/newpost', MainPage),
+    ('/blog', Blog)
 ], debug=True)

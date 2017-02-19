@@ -1,22 +1,22 @@
 <!DOCTYPE html>
-    <html>
-        <head>
-            <title>Build-a-blog</title>
-                <style type= "text/css">
-                </style>
-        </head>
-        <body>
-            <h1>Build-a-Blog</h1>
-
+<html>
+    <head>
+        <title>Build-a-Blog</title>
+        <style type="text/css">
+            .error {
+                color: red;
+            }
+        </style>
+    <body>
         <form method = "post">
             <label>
                 <div>title</div>
-                <input type = "text" name="title">
+                <input type = "text" name="title" value="{{title}}">
             </label>
 
             <label>
                 <div>Post</div>
-                <textarea name ="user post"></textarea>
+                <textarea name ="entry">{{entry}}</textarea>
             </label>
 
             <label>
@@ -24,9 +24,16 @@
                 <input type = "submit">
             </label>
             <div class="error">{{error}}</div>
+
         </form>
-
-
+        <hr>
+        {% for entry_list in Post %}
+            <div class="entry_list"
+                <div class="entry_list-title">{{UserPosts.title}}</div>
+                #<pre class="user_post-body">{{UserPosts.user_post}}</pre>
+            </div>
+        {% endfor %}
+        </hr>
 
 
         </body>
