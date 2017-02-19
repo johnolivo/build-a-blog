@@ -16,17 +16,38 @@
 #
 import webapp2
 import cgi
-#import jinja2
-#import os
+import os
+import jinja2
 
 # set up jinja
 template_dir = os.path.join(os.path.dirname(__file__), "templates")
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir))
 
-class MainHandler(webapp2.RequestHandler):
+class Handler(webapp2.RequestHandler):
+    def write(self, *a):
+        self.response.write(*a)
+    def render_str(self,template, **b):
+        t = jinja_env.get_template(template)
+        return t.render(b)
+    def render(self,template, **c):
+        self.write(self.render_str(template, **c))
+#submission page
+t = jinja_env.get_template("title.html")
+main_page = t.render()
+class MainPage(Handler):
     def get(self):
-        self.response.write('Hello world!')
+        self.render("title.html")
+
+    def post(self):
+        title = self.request.get("title")
+        user_post = self.request.get("user post")
+
+        if title and user_post:
+            self.write("Thanks for posting!")
+        else:
+            error = "Sorry, we need both a title and a blog post"
+            self.render("title.html", error = error)
 
 app = webapp2.WSGIApplication([
-    ('/', MainHandler)
+    ('/', MainPage)
 ], debug=True)
