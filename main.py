@@ -40,6 +40,8 @@ class Handler(webapp2.RequestHandler):
 #submission page
 t = jinja_env.get_template("title.html")
 main_page = t.render()
+
+
 class MainPage(Handler):
     def render_front(self, title="", entry="", error=""):
         self.render("title.html", title = title, entry=entry, error=error)
@@ -54,6 +56,7 @@ class MainPage(Handler):
         if title and entry:
             a = Post(title = title, entry = entry)
             a.put()
+            post_key = a.key().id()
             self.redirect("/blog")
         else:
             error = "Sorry, we need both a title and a blog post"
@@ -65,11 +68,19 @@ class Blog(MainPage):
 
         #self.render("title.html", entry_list)
         self.render("database.html", entry_list = entry_list)
-
-    # def post(self):
-    #     test="test"
+class ViewPostHandler(webapp2.RequestHandler):
+    def get(self, id):
+        #post_id = int(self.request.get("post_key"))
+        key = db.Key.from_path('Post', int(id))
+        post = db.get(key)
+        #post_id = Post.get_by_id(int(post_id))
+        t= jinja_env.get_template("singlePost.html")
+        content = t.render(post = post)
+        self.response.write(content)
+        #self.response.write("singlePost.html", post = post)#post = post)# = post_id)
 
 app = webapp2.WSGIApplication([
     ('/newpost', MainPage),
-    ('/blog', Blog)
+    ('/blog', Blog),
+    webapp2.Route('/blog/<id:\d+>', ViewPostHandler)
 ], debug=True)
